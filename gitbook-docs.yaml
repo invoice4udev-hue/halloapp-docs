@@ -5,10 +5,12 @@ site:
     - type: section
       key: halloapp
       title: HalloApp API
+      path: halloapp
       children:
         - type: space
           key: halloapp-en
           title: English
+          path: en
           default: true
           content:
             directory: ./

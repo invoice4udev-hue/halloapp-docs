@@ -1,0 +1,22 @@
+$schema: https://api.gitbook.com/gitbook-docs.yaml
+site:
+  title: HalloApp API
+  structure:
+    - type: section
+      key: halloapp
+      title: HalloApp API
+      children:
+        - type: space
+          key: halloapp-en
+          title: English
+          default: true
+          content:
+            directory: ./
+            language: en
+        - type: space
+          key: halloapp-he
+          title: עברית
+          path: he
+          content:
+            directory: ./he
+            language: he

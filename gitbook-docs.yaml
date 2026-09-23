@@ -6,6 +6,7 @@ site:
       key: halloapp
       title: HalloApp API
       path: halloapp
+      default: true
       children:
         - type: space
           key: halloapp-en

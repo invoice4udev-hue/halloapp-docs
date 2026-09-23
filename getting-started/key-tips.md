@@ -39,4 +39,4 @@ Practical notes that save integration time. Read this before going live.
 
 ### Environments
 
-* Test against **QA** (`https://appqa.halloapp.co.il`) first, then switch the base URL to **Production** (`https://app.halloapp.co.il`). Credentials differ per environment.
+* The examples use **Production** (`https://app.halloapp.co.il`). A separate **QA** environment (`https://appqa.halloapp.co.il`) is available if you want to test first — credentials differ per environment. WhatsApp messages are delivered live, so test with your own phone number before sending to customers.

@@ -38,7 +38,7 @@ The token is scoped to the issuing desk, so send/discovery endpoints never take 
 
 ```http
 POST /api/halloapp/token HTTP/1.1
-Host: appqa.halloapp.co.il
+Host: app.halloapp.co.il
 Content-Type: application/json
 
 {

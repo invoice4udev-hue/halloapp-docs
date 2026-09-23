@@ -37,7 +37,7 @@ Discover which mode your desk uses via [List Templates](../discovery/templates.m
 
 ```http
 POST /api/halloapp/whatsapp/send HTTP/1.1
-Host: appqa.halloapp.co.il
+Host: app.halloapp.co.il
 Content-Type: application/json
 Authorization: Bearer <access_token>
 
@@ -53,7 +53,7 @@ Authorization: Bearer <access_token>
 
 ```http
 POST /api/halloapp/whatsapp/send HTTP/1.1
-Host: appqa.halloapp.co.il
+Host: app.halloapp.co.il
 Content-Type: application/json
 Authorization: Bearer <access_token>
 

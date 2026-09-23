@@ -16,7 +16,7 @@ The desk is taken from the bearer token.
 
 ```http
 GET /api/halloapp/whatsapp/agents HTTP/1.1
-Host: appqa.halloapp.co.il
+Host: app.halloapp.co.il
 Authorization: Bearer <access_token>
 ```
 

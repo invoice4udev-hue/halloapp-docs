@@ -27,7 +27,7 @@ Exchange them at the [Token endpoint](../authentication/overview.md) for a short
 | Production | `https://app.halloapp.co.il` |
 | QA (staging) | `https://appqa.halloapp.co.il` |
 
-All endpoints in this documentation are relative to these base URLs. Develop and test against **QA** first, then switch to **Production**.
+All endpoints in this documentation are relative to these base URLs. The examples use **Production**; a **QA** environment is available if you'd rather test first. WhatsApp messages are delivered live, so test with your own phone number before sending to customers.
 
 ### Request format
 
@@ -35,7 +35,7 @@ Every endpoint is called with a JSON body and returns JSON. Authenticated endpoi
 
 ```http
 POST /api/halloapp/whatsapp/send HTTP/1.1
-Host: appqa.halloapp.co.il
+Host: app.halloapp.co.il
 Content-Type: application/json
 Authorization: Bearer <access_token>
 

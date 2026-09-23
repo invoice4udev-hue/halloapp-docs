@@ -1,6 +1,6 @@
 # ‫התחלה מהירה‬
 
-‫שלחו את הודעת ה-WhatsApp הראשונה שלכם בארבעה צעדים. עבדו מול **סביבת ה-QA** (`https://appqa.halloapp.co.il`) עד שהתהליך שלכם יציב.‬
+‫שלחו את הודעת ה-WhatsApp הראשונה שלכם בארבעה צעדים. הדוגמאות משתמשות בכתובת הבסיס של **פרודקשן** (`https://app.halloapp.co.il`). ההודעות נשלחות באופן חי — בדקו עם מספר הטלפון שלכם תחילה. קיימת גם סביבת **QA** (ראו [כתובות בסיס](welcome.md#base-urls)) אם תעדיפו לבדוק שם.‬
 
 ### ‫1. השיגו טוקן Bearer‬
 
@@ -8,7 +8,7 @@
 
 ```http
 POST /api/halloapp/token HTTP/1.1
-Host: appqa.halloapp.co.il
+Host: app.halloapp.co.il
 Content-Type: application/json
 
 {
@@ -31,7 +31,7 @@ Content-Type: application/json
 
 ```http
 GET /api/halloapp/whatsapp/templates HTTP/1.1
-Host: appqa.halloapp.co.il
+Host: app.halloapp.co.il
 Authorization: Bearer <access_token>
 ```
 
@@ -43,7 +43,7 @@ Authorization: Bearer <access_token>
 
 ```http
 POST /api/halloapp/whatsapp/send HTTP/1.1
-Host: appqa.halloapp.co.il
+Host: app.halloapp.co.il
 Content-Type: application/json
 Authorization: Bearer <access_token>
 
@@ -59,7 +59,7 @@ Authorization: Bearer <access_token>
 
 ```http
 POST /api/halloapp/whatsapp/send HTTP/1.1
-Host: appqa.halloapp.co.il
+Host: app.halloapp.co.il
 Content-Type: application/json
 Authorization: Bearer <access_token>
 

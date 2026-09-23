@@ -27,7 +27,7 @@
 | ‫פרודקשן‬ | `https://app.halloapp.co.il` |
 | ‫QA (בדיקות)‬ | `https://appqa.halloapp.co.il` |
 
-‫כל נקודות הקצה בתיעוד הזה יחסיות לכתובות הבסיס האלה. פתחו ובדקו מול **QA** תחילה, ואז החליפו ל**פרודקשן**.‬
+‫כל נקודות הקצה בתיעוד הזה יחסיות לכתובות הבסיס האלה. הדוגמאות משתמשות ב**פרודקשן**; קיימת גם סביבת **QA** אם תעדיפו לבדוק תחילה. הודעות WhatsApp נשלחות באופן חי, לכן בדקו עם מספר הטלפון שלכם לפני שליחה ללקוחות.‬
 
 ### ‫פורמט הבקשות‬
 
@@ -35,7 +35,7 @@
 
 ```http
 POST /api/halloapp/whatsapp/send HTTP/1.1
-Host: appqa.halloapp.co.il
+Host: app.halloapp.co.il
 Content-Type: application/json
 Authorization: Bearer <access_token>
 

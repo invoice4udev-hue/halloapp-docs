@@ -1,6 +1,6 @@
 # Quick Start
 
-Send your first WhatsApp message in four steps. Work against the **QA environment** (`https://appqa.halloapp.co.il`) until your flow is stable.
+Send your first WhatsApp message in four steps. The examples use the **production** base URL (`https://app.halloapp.co.il`). Messages are delivered live — test with your own phone number first. A **QA** environment is also available (see [Base URLs](welcome.md#base-urls)) if you prefer to test there.
 
 ### 1. Get a bearer token
 
@@ -8,7 +8,7 @@ Exchange your desk credentials for a short-lived token (valid ~4 minutes, reusab
 
 ```http
 POST /api/halloapp/token HTTP/1.1
-Host: appqa.halloapp.co.il
+Host: app.halloapp.co.il
 Content-Type: application/json
 
 {
@@ -31,7 +31,7 @@ Ask the desk which provider mode it uses. `isInforu: true` means you must send a
 
 ```http
 GET /api/halloapp/whatsapp/templates HTTP/1.1
-Host: appqa.halloapp.co.il
+Host: app.halloapp.co.il
 Authorization: Bearer <access_token>
 ```
 
@@ -43,7 +43,7 @@ See [List Approved Templates](../discovery/templates.md).
 
 ```http
 POST /api/halloapp/whatsapp/send HTTP/1.1
-Host: appqa.halloapp.co.il
+Host: app.halloapp.co.il
 Content-Type: application/json
 Authorization: Bearer <access_token>
 
@@ -59,7 +59,7 @@ Authorization: Bearer <access_token>
 
 ```http
 POST /api/halloapp/whatsapp/send HTTP/1.1
-Host: appqa.halloapp.co.il
+Host: app.halloapp.co.il
 Content-Type: application/json
 Authorization: Bearer <access_token>
 

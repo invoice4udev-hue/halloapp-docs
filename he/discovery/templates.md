@@ -16,7 +16,7 @@
 
 ```http
 GET /api/halloapp/whatsapp/templates HTTP/1.1
-Host: appqa.halloapp.co.il
+Host: app.halloapp.co.il
 Authorization: Bearer <access_token>
 ```
 

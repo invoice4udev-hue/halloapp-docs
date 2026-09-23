@@ -1,0 +1,219 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "HalloApp Send API",
+    "version": "1.0.0",
+    "description": "REST API for partner applications to send WhatsApp messages through a HalloApp desk: documents, reports, notifications.\n\n## Concepts\n\n- **Desk** – the HalloApp workspace connected to your organization. It is the identity of the caller: every API credential and every message is scoped to one desk.\n- **Provider** – each desk sends WhatsApp through one provider, and the rules differ:\n  - **InforU desk** – messages MUST go out as a pre-approved template (`templateId` is mandatory).\n  - **Green API desk** – free text only (templates are rejected).\n\n  Use the *Templates* endpoint to learn which mode your desk uses (`isInforu` true/false).\n- **Files** – always delivered as a **download link**, never as a native WhatsApp attachment. On a Green API desk the `fileUrl` is appended to the message text; on an InforU desk the URL travels as one of the template parameters. The URL must be reachable by the end customer.\n- **Chat** – every sent message is stored as a normal HalloApp conversation. If no chat exists for the target phone it is created (along with a phonebook contact). Customer replies land in the same chat and are handled by the desk's agents in the HalloApp UI.\n\n## Authentication\n\nOAuth-style client credentials. You receive a `client_id` (your desk GUID) and a `client_secret` from HalloApp out-of-band. Exchange them at the *Token* endpoint for a bearer token valid for **4 minutes and reusable until it expires**. Send it on every other endpoint as `Authorization: Bearer <access_token>`.\n\n## Error catalog\n\nBusiness errors return HTTP 200 with `ok:false` and a `msg` explaining the fix:\n\n| `msg` contains | Cause / fix |\n|---|---|\n| `client_id and client_secret are required` | missing credentials on `/token` |\n| `desk not found for token` | token valid but desk removed/archived |\n| `phone is required` / `invalid phone` | missing/empty phone |\n| `this desk requires a templateId` | InforU desk – send with `templateId` + `templateParams` |\n| `this desk does not support templates` | Green API desk – send free text |\n| `template not found for this desk` | wrong `templateId` (use Templates discovery) |\n| `template expects N parameter(s), got M` | `templateParams` count must equal `parameterCount` |\n| `files are delivered as a link inside a template parameter` | on InforU, include `fileUrl` as one of `templateParams` |\n| `agent not found in this desk` | `agentId` is not an active member of the desk |\n\nAuthentication failures return **HTTP 401**."
+  },
+  "servers": [
+    { "url": "https://app.halloapp.co.il", "description": "Production" },
+    { "url": "https://appqa.halloapp.co.il", "description": "QA" }
+  ],
+  "tags": [
+    { "name": "Authentication" },
+    { "name": "Discovery" },
+    { "name": "Sending" }
+  ],
+  "paths": {
+    "/api/halloapp/token": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Generate access token",
+        "description": "Exchange your desk credentials for a short-lived bearer token (valid 4 minutes, reusable until expiry).",
+        "operationId": "generateToken",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["client_id", "client_secret"],
+                "properties": {
+                  "client_id": { "type": "string", "description": "Your desk GUID", "example": "11111111-2222-3333-4444-555555555555" },
+                  "client_secret": { "type": "string", "description": "The desk's API secret", "example": "your-desk-api-secret" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Token issued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": { "type": "boolean", "example": true },
+                    "access_token": { "type": "string", "example": "eyJhbGciOiJIUzI1NiIs..." },
+                    "token_type": { "type": "string", "example": "Bearer" },
+                    "expires_in": { "type": "integer", "example": 240 }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Wrong client_id / client_secret" }
+        }
+      }
+    },
+    "/api/halloapp/whatsapp/templates": {
+      "get": {
+        "tags": ["Discovery"],
+        "summary": "List approved templates",
+        "description": "Returns the desk's approved WhatsApp templates. `isInforu: false` (empty list) means the desk sends free text – skip templates entirely. `id` is the value to pass as `templateId` on send; `parameterCount` is the exact number of `templateParams` values the template expects.",
+        "operationId": "listTemplates",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Desk templates",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": { "type": "boolean" },
+                    "isInforu": { "type": "boolean" },
+                    "templates": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "integer", "example": 17 },
+                          "inforuTemplateId": { "type": "integer", "example": 255201 },
+                          "nameHe": { "type": "string" },
+                          "nameEn": { "type": "string", "example": "i4u_doc_en_5" },
+                          "messageText": { "type": "string", "example": "שלום [#1#], קיבלת [#2#] מספר [#3#] מאת [#4#]. קישור להורדת המסמך: [#5#] . תודה." },
+                          "language": { "type": "integer", "description": "1 = Hebrew, 2 = English" },
+                          "category": { "type": "integer", "description": "1 = Service/Utility, 2 = Marketing" },
+                          "parameterCount": { "type": "integer", "example": 5 }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Missing/expired token" }
+        }
+      }
+    },
+    "/api/halloapp/whatsapp/agents": {
+      "get": {
+        "tags": ["Discovery"],
+        "summary": "List desk agents",
+        "description": "Optional discovery: returns the desk's active agents. Only needed if you want messages attributed to a specific agent via `agentId` on send.",
+        "operationId": "listAgents",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Desk agents",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": { "type": "boolean" },
+                    "agents": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "integer", "example": 12 },
+                          "name": { "type": "string", "example": "Agent Name" },
+                          "email": { "type": "string", "example": "agent@example.com" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Missing/expired token" }
+        }
+      }
+    },
+    "/api/halloapp/whatsapp/send": {
+      "post": {
+        "tags": ["Sending"],
+        "summary": "Send a WhatsApp message",
+        "description": "Sends a WhatsApp message to the given phone through the token's desk.\n\n**Provider rules**\n\n| Desk provider | `message` | `templateId` + `templateParams` | `fileUrl` |\n|---|---|---|---|\n| InforU | ignored (template defines the text) | **required**; param count must match `parameterCount` | put the URL **inside** `templateParams` |\n| Green API | required (or `fileUrl`) | rejected | appended to the text as a link |",
+        "operationId": "sendWhatsApp",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["phone"],
+                "properties": {
+                  "phone": { "type": "string", "description": "Local (05...) or international format", "example": "0501234567" },
+                  "name": { "type": "string", "description": "Used when a new chat/contact is created", "example": "Israel Israeli" },
+                  "agentId": { "type": "integer", "nullable": true, "description": "Attribute the message to this desk agent; omitted = system message", "example": 12 },
+                  "message": { "type": "string", "description": "Green API desks: the message text" },
+                  "templateId": { "type": "integer", "nullable": true, "description": "InforU desks: REQUIRED (from Templates discovery)", "example": 17 },
+                  "templateParams": { "type": "array", "items": { "type": "string" }, "description": "One value per [#n#] placeholder, in order" },
+                  "fileUrl": { "type": "string", "description": "Document link (see provider rules)", "example": "https://myapp.example/reports/vat-2026-06.pdf" }
+                }
+              },
+              "examples": {
+                "freeTextGreenApi": {
+                  "summary": "Free text (Green API desk)",
+                  "value": {
+                    "phone": "0501234567",
+                    "name": "Israel Israeli",
+                    "message": "Hello! Your document is ready:",
+                    "fileUrl": "https://myapp.example/reports/vat-2026-06.pdf"
+                  }
+                },
+                "templateInforu": {
+                  "summary": "Template (InforU desk)",
+                  "value": {
+                    "phone": "0501234567",
+                    "name": "Israel Israeli",
+                    "agentId": 12,
+                    "templateId": 17,
+                    "templateParams": ["Israel Israeli", "VAT report", "2026-06", "My Business Ltd", "https://myapp.example/reports/vat-2026-06.pdf"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Send result (also used for business errors with ok:false + msg)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": { "type": "boolean", "example": true },
+                    "chatId": { "type": "integer", "example": 92, "description": "HalloApp conversation id" },
+                    "messageId": { "type": "integer", "example": 4587, "description": "HalloApp message record id" },
+                    "status": { "type": "integer", "example": 0, "description": "Provider status (>= 0 success)" },
+                    "msg": { "type": "string", "description": "Present when ok:false - see the error catalog" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Missing/expired token" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Obtain via POST /api/halloapp/token (valid 4 minutes, reusable until expiry)."
+      }
+    }
+  }
+}
